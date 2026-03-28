@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #0a0a0a;
+    color: #e0e0e0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 20px 28px;
+    background: linear-gradient(135deg, #0c1a0f 0%, #1a3a2a 50%, #0c1a0f 100%);
+    border-bottom: 2px solid #10b981;
+  }
+  .header .logo { font-size: 32px; margin-bottom: 4px; }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .header .date {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  .tag-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(16,185,129,0.4);
+    color: #6ee7b7;
+    background: rgba(16,185,129,0.1);
+  }
+  .tag.count {
+    color: #fbbf24;
+    border-color: rgba(251,191,36,0.4);
+    background: rgba(251,191,36,0.08);
+  }
+
+  /* Data Dashboard */
+  .dashboard {
+    background: #111318;
+    border: 1px solid #1e2130;
+    border-radius: 10px;
+    margin: 20px 0;
+    padding: 20px;
+  }
+  .dashboard-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .data-item {
+    background: #0d1117;
+    border: 1px solid #1e2130;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .data-item .data-label {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+  .data-item .data-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+  .data-item .data-change {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .data-item .data-change.up { color: #f87171; }
+  .data-item .data-change.down { color: #34d399; }
+  .data-item .data-change.neutral { color: #94a3b8; }
+  .data-full {
+    grid-column: 1 / -1;
+    background: #0d1117;
+    border: 1px solid #1e2130;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #b0bec5;
+    white-space: pre-line;
+  }
+
+  /* TOC */
+  .toc {
+    background: #111318;
+    border: 1px solid #1e2130;
+    border-radius: 10px;
+    margin: 0 0 20px;
+    padding: 16px 20px;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #10b981;
+    margin-bottom: 10px;
+  }
+  .toc ol { padding-left: 20px; margin: 0; }
+  .toc li { font-size: 13px; line-height: 1.8; color: #94a3b8; }
+  .toc li a { color: #cbd5e1; text-decoration: none; }
+  .toc li .toc-source { font-size: 11px; color: #475569; margin-left: 4px; }
+
+  /* Article Card */
+  .card {
+    background: #111318;
+    border: 1px solid #1e2130;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .card-top { padding: 18px 20px 0; }
+  .card-num {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #10b981;
+    background: rgba(16,185,129,0.12);
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    border-radius: 8px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .card-source {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(251,191,36,0.1);
+    padding: 3px 10px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+  .card-date {
+    display: inline-block;
+    font-size: 11px;
+    color: #475569;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 10px 0 0;
+  }
+  .card h2 a { color: #e2e8f0; text-decoration: none; }
+  .card-body { padding: 14px 20px 0; }
+  .card-body p { font-size: 13.5px; line-height: 1.75; color: #b0bec5; margin: 0; }
+  .card-analysis {
+    margin: 12px 20px 0;
+    padding: 10px 14px;
+    background: rgba(16,185,129,0.06);
+    border-left: 3px solid #10b981;
+    border-radius: 0 8px 8px 0;
+  }
+  .card-analysis .analysis-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #34d399;
+    margin-bottom: 4px;
+  }
+  .card-analysis p { font-size: 13px; line-height: 1.65; color: #a7f3d0; margin: 0; }
+  .card-foot { padding: 12px 20px 16px; text-align: right; }
+  .card-foot a { font-size: 12px; font-weight: 600; color: #10b981; text-decoration: none; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 28px 16px;
+    font-size: 11px;
+    color: #334155;
+    line-height: 1.7;
+    border-top: 1px solid #1e2130;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">🏠</div>
+    <h1>麻州房产日报</h1>
+    <div class="date">{{ date }}</div>
+    <div class="tag-row">
+      <span class="tag count">{{ article_count }} 篇新闻</span>
+      <span class="tag">政策法规</span>
+      <span class="tag">价格追踪</span>
+      <span class="tag">库存供需</span>
+    </div>
+  </div>
+
+  <!-- Market Data Dashboard -->
+  {% if market_data %}
+  <div class="dashboard">
+    <div class="dashboard-title">📊 麻州房产市场数据一览</div>
+    <div class="data-full">{{ market_data }}</div>
+  </div>
+  {% endif %}
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">📋 今日速览</div>
+    <ol>
+      {% for article in articles %}
+      <li>
+        <a href="{{ article.link }}">{{ article.title_cn if article.title_cn else article.title }}</a>
+        <span class="toc-source">— {{ article.source }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+
+  <!-- Articles -->
+  {% for article in articles %}
+  <div class="card">
+    <div class="card-top">
+      <span class="card-num">{{ loop.index }}</span>
+      <span class="card-source">{{ article.source }}</span>
+      <span class="card-date">{{ article.published[:10] }}</span>
+      <h2><a href="{{ article.link }}">{{ article.title_cn if article.title_cn else article.title }}</a></h2>
+    </div>
+
+    {% if '【分析】' in article.ai_summary %}
+      {% set summary_part = article.ai_summary.split('【分析】')[0].replace('【总结】', '').strip() %}
+      {% set analysis_part = article.ai_summary.split('【分析】')[1].strip() %}
+    {% elif '\n\n' in article.ai_summary %}
+      {% set summary_part = article.ai_summary.split('\n\n')[0].replace('【总结】', '').strip() %}
+      {% set analysis_part = article.ai_summary.split('\n\n')[1].strip() %}
+    {% else %}
+      {% set summary_part = article.ai_summary.replace('【总结】', '').strip() %}
+      {% set analysis_part = '' %}
+    {% endif %}
+
+    <div class="card-body">
+      <p>{{ summary_part }}</p>
+    </div>
+
+    {% if analysis_part %}
+    <div class="card-analysis">
+      <div class="analysis-label">🏗️ 开发者视角</div>
+      <p>{{ analysis_part }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card-foot">
+      <a href="{{ article.link }}">阅读原文 →</a>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Footer -->
+  <div class="footer">
+    麻州房产日报 · 由 Gemini AI 自动生成 · 数据来自 RSS 及公开数据源<br>
+    本邮件仅供参考，不构成投资建议
+  </div>
+
+</div>
+</body>
+</html>

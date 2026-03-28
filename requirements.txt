@@ -1,0 +1,4 @@
+feedparser>=6.0
+requests>=2.31
+google-generativeai>=0.8
+jinja2>=3.1
