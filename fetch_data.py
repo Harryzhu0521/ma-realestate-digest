@@ -105,55 +105,6 @@ def fetch_zillow_cities() -> dict:
         return {}
 
 
-def fetch_redfin_summary() -> dict:
-    """Fetch Redfin housing market summary for MA."""
-    # Try multiple Redfin data URLs
-    urls = [
-        "https://redfin-public-data.s3.us-west-2.amazonaws.com/redfin_market_tracker/us_national_market_tracker.tsv000.gz",
-    ]
-
-    for url in urls:
-        try:
-            resp = requests.get(url, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
-            resp.raise_for_status()
-
-            import gzip
-            content = gzip.decompress(resp.content).decode("utf-8")
-            reader = csv.DictReader(io.StringIO(content), delimiter="\t")
-
-            rows = []
-            for row in reader:
-                if row.get("property_type") == "All Residential":
-                    rows.append(row)
-
-            if not rows:
-                continue
-
-            rows.sort(key=lambda r: r.get("period_end", ""), reverse=True)
-            latest = rows[0]
-
-            return {
-                "period": latest.get("period_end", "N/A"),
-                "median_sale_price": latest.get("median_sale_price", ""),
-                "median_sale_price_yoy": latest.get("median_sale_price_yoy", ""),
-                "median_list_price": latest.get("median_list_price", ""),
-                "homes_sold": latest.get("homes_sold", ""),
-                "homes_sold_yoy": latest.get("homes_sold_yoy", ""),
-                "new_listings": latest.get("new_listings", ""),
-                "new_listings_yoy": latest.get("new_listings_yoy", ""),
-                "inventory": latest.get("inventory", ""),
-                "inventory_yoy": latest.get("inventory_yoy", ""),
-                "months_of_supply": latest.get("months_of_supply", ""),
-                "median_dom": latest.get("median_dom", ""),
-                "avg_sale_to_list": latest.get("avg_sale_to_list", ""),
-                "scope": "全美",
-            }
-        except Exception as e:
-            print(f"  Warning: Failed to fetch Redfin data from {url}: {e}")
-
-    return {}
-
-
 def fetch_mortgage_rate() -> dict:
     """Fetch latest 30-year mortgage rate from FRED."""
     try:
@@ -190,7 +141,7 @@ def _fmt(val, fmt_type="price"):
     return val or "N/A"
 
 
-def format_market_summary(zillow_metro: dict, zillow_cities: dict, redfin: dict, mortgage: dict) -> str:
+def format_market_summary(zillow_metro: dict, zillow_cities: dict, mortgage: dict) -> str:
     """Format all market data into a readable summary."""
     lines = []
 
@@ -219,24 +170,6 @@ def format_market_summary(zillow_metro: dict, zillow_cities: dict, redfin: dict,
             if "yoy" in data:
                 parts.append(f"年同比 {data['yoy']:+.1f}%")
             lines.append("  ".join(parts))
-        lines.append("")
-
-    # Redfin national summary (as reference)
-    if redfin and redfin.get("median_sale_price"):
-        scope = redfin.get("scope", "")
-        lines.append(f"📊 {scope}房产市场参考 (Redfin, 截至 {redfin.get('period', 'N/A')})")
-        lines.append("-" * 40)
-        lines.append(f"  🏠 中位售价: {_fmt(redfin['median_sale_price'])} (同比 {_fmt(redfin.get('median_sale_price_yoy', ''), 'yoy')})")
-        if redfin.get("inventory"):
-            lines.append(f"  📦 活跃库存: {_fmt(redfin['inventory'], 'num')} 套 (同比 {_fmt(redfin.get('inventory_yoy', ''), 'yoy')})")
-        if redfin.get("months_of_supply"):
-            lines.append(f"  ⏳ 库存月数: {redfin['months_of_supply']} 个月")
-        if redfin.get("median_dom"):
-            lines.append(f"  📆 中位在售天数: {redfin['median_dom']} 天")
-        if redfin.get("avg_sale_to_list"):
-            lines.append(f"  💰 成交价/挂牌价: {_fmt(redfin['avg_sale_to_list'], 'pct')}")
-        if redfin.get("homes_sold"):
-            lines.append(f"  🔑 成交量: {_fmt(redfin['homes_sold'], 'num')} 套 (同比 {_fmt(redfin.get('homes_sold_yoy', ''), 'yoy')})")
         lines.append("")
 
     # Mortgage rate

@@ -3,7 +3,7 @@
 import sys
 
 from fetch_news import fetch_articles
-from fetch_data import fetch_zillow_metro, fetch_zillow_cities, fetch_redfin_summary, fetch_mortgage_rate, format_market_summary
+from fetch_data import fetch_zillow_metro, fetch_zillow_cities, fetch_mortgage_rate, format_market_summary
 from summarize import summarize_articles
 from send_email import render_email, send_email
 
@@ -19,20 +19,17 @@ def main():
     zillow_cities = fetch_zillow_cities()
     if zillow_cities:
         print(f"  Zillow city data: {len(zillow_cities.get('cities', {}))} cities")
-    redfin = fetch_redfin_summary()
-    if redfin and redfin.get("median_sale_price"):
-        print(f"  Redfin data loaded")
     mortgage = fetch_mortgage_rate()
     if mortgage:
         print(f"  Mortgage rate: {mortgage.get('rate', 'N/A')}%")
-    market_data = format_market_summary(zillow_metro, zillow_cities, redfin, mortgage)
+    market_data = format_market_summary(zillow_metro, zillow_cities, mortgage)
 
     # Step 2: Fetch news
     print("\n[2/4] Fetching news from RSS feeds...")
     articles = fetch_articles()
     print(f"  Found {len(articles)} relevant articles")
 
-    if not articles and not zillow_metro and not zillow_cities and not redfin:
+    if not articles and not zillow_metro and not zillow_cities:
         print("  No articles or data found. Exiting.")
         sys.exit(0)
 
