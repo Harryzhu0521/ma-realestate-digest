@@ -39,7 +39,8 @@ def send_email(html: str, article_count: int):
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = f"MA Real Estate Digest <{EMAIL_SENDER}>"
-    msg["To"] = EMAIL_RECIPIENT
+    recipients = [r.strip() for r in EMAIL_RECIPIENT.split(",") if r.strip()]
+    msg["To"] = ", ".join(recipients)
 
     plain = f"麻州房产日报已生成，共 {article_count} 篇新闻。请使用 HTML 邮件客户端查看。"
     msg.attach(MIMEText(plain, "plain", "utf-8"))
@@ -48,6 +49,6 @@ def send_email(html: str, article_count: int):
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
         server.starttls()
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_SENDER, [EMAIL_RECIPIENT], msg.as_string())
+        server.sendmail(EMAIL_SENDER, recipients, msg.as_string())
 
-    print(f"Email sent to {EMAIL_RECIPIENT}")
+    print(f"Email sent to {', '.join(recipients)}")
